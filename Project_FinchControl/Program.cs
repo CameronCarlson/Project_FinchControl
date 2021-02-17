@@ -199,7 +199,7 @@ namespace Project_FinchControl
             Console.WriteLine("\tThe Finch robot will now play your tone");
 
             finchRobot.noteOn(frequency);
-            finchRobot.wait(1000);
+            finchRobot.wait(2000);
             finchRobot.noteOff();
 
             Console.WriteLine("\tMy song is playing now");
