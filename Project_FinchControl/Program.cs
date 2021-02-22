@@ -6,17 +6,16 @@ using FinchAPI;
 namespace Project_FinchControl
 {
 
-    // **************************************************
+    // ****************************************************************************************************
     //
-    // Title: Finch Control - Menu Starter
-    // Description: Starter solution with the helper methods,
-    //              opening and closing screens, and the menu
+    // Title: Finch Control
+    // Description: Mission 3 code to control the finch robot
     // Application Type: Console
-    // Author: Velis, John
-    // Dated Created: 1/22/2020
-    // Last Modified: 2/17/2021
+    // Author: Cameron Carlson
+    // Dated Created: 2/17/2021
+    // Last Modified: 2/21/2021
     //
-    // **************************************************
+    // ****************************************************************************************************
 
     class Program
     {
@@ -138,10 +137,10 @@ namespace Project_FinchControl
                 //
                 // get user menu choice
                 //
-                Console.WriteLine("\ta) Light and Sound");
-                Console.WriteLine("\tb) Play a Song");
-                Console.WriteLine("\tc) ");
-                Console.WriteLine("\td) ");
+                Console.WriteLine("\ta) Light Show");
+                Console.WriteLine("\tb) Play a Music Note");
+                Console.WriteLine("\tc) Spin Around");
+                Console.WriteLine("\td) Go Crazy");
                 Console.WriteLine("\tq) Main Menu");
                 Console.Write("\t\tEnter Choice:");
                 menuChoice = Console.ReadLine().ToLower();
@@ -152,19 +151,19 @@ namespace Project_FinchControl
                 switch (menuChoice)
                 {
                     case "a":
-                        TalentShowDisplayLightAndSound(finchRobot);
+                        TalentShowDisplayLightShow(finchRobot);
                         break;
 
                     case "b":
-                        TelentShowDisplayPlaySong(finchRobot);
+                        TelentShowDisplayMusicNote(finchRobot);
                         break;
 
                     case "c":
-
+                        TalentShowDisplaySpinAround(finchRobot);
                         break;
 
                     case "d":
-
+                        TalentShowDisplayGoCrazy(finchRobot);
                         break;
 
                     case "q":
@@ -181,57 +180,639 @@ namespace Project_FinchControl
             } while (!quitTalentShowMenu);
         }
 
-        static void TelentShowDisplayPlaySong(Finch finchRobot)
+        /// <summary>
+        /// Talent Show: Show light based on user input
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        static void TalentShowDisplayLightShow(Finch finchRobot)
         {
-            DisplayScreenHeader("Play my Song");
+            string color;
+            bool ValidRepsone;
 
-            //Console.WriteLine();
-            //Console.WriteLine("\tThe Finch Robot Will Now Play a Song.");
-            //DisplayContinuePrompt();
+            do
+            {
+                ValidRepsone = true;
 
+                DisplayScreenHeader("Light Show");
+
+                Console.WriteLine();
+                Console.WriteLine("\tThe Finch Robot Will Now Give You a Light Show");
+                Console.WriteLine();
+
+                Console.WriteLine("\ta) Red");
+                Console.WriteLine("\tb) Green");
+                Console.WriteLine("\tc) Blue");
+                Console.WriteLine("\td) Yellow");
+                Console.WriteLine("\te) Cyan");
+                Console.WriteLine("\tf) Purple");
+                Console.WriteLine("\tg) Exit Light Show");
+
+                Console.WriteLine();
+                Console.Write("\tPlease Choose a Color:");
+
+                color = Console.ReadLine().ToLower();
+
+                switch (color)
+                {
+                    case "a":
+                        for (int loop = 0; loop < 5; loop++)
+                            DisplayColorRed(finchRobot);
+                        break;
+                    case "b":
+                        for (int loop = 0; loop < 5; loop++)
+                        {
+                            DisplayColorGreen(finchRobot);
+                        }
+                        break;
+                    case "c":
+                        for (int loop = 0; loop < 5; loop++)
+                        {
+                            DisplayColorBlue(finchRobot);
+                        }
+                        break;
+                    case "d":
+                        for (int loop = 0; loop < 5; loop++)
+                        {
+                            DisplayColorYellow(finchRobot);
+                        }
+                        break;
+                    case "e":
+                        for (int loop = 0; loop < 5; loop++)
+                        {
+                            DisplayColorCyan(finchRobot);
+                        }
+                        break;
+                    case "f":
+                        for (int loop = 0; loop < 5; loop++)
+                        {
+                            DisplayColorPurple(finchRobot);
+                        }
+                        break;
+                    case "g":
+                        break;
+                    default:
+                        Console.WriteLine();
+                        Console.WriteLine("\tPlease enter a letter for the menu choice.");
+                        ValidRepsone = false;
+                        DisplayContinuePrompt();
+                        break;
+                }
+            } while (!ValidRepsone);
+
+            DisplayMenuPrompt("Talent Show");
+        }
+
+        #region Colors
+
+        static void DisplayColorPurple(Finch finchRobot)
+        {
+            //
+            // Turn Purple
+            //
+            for (int lightLevel = 0; lightLevel <= 255; lightLevel += 5)
+            {
+                finchRobot.setLED(lightLevel, 0, lightLevel);
+            }
+            finchRobot.wait(250);
+            for (int lightLevel = 255; lightLevel >= 0; lightLevel -= 5)
+            {
+                finchRobot.setLED(lightLevel, 0, lightLevel);
+            }
+        }
+
+        static void DisplayColorCyan(Finch finchRobot)
+        {
+            //
+            // Turn Cyan
+            //
+            for (int lightLevel = 0; lightLevel <= 255; lightLevel += 5)
+            {
+                finchRobot.setLED(0, lightLevel, lightLevel);
+            }
+            finchRobot.wait(250);
+            for (int lightLevel = 255; lightLevel >= 0; lightLevel -= 5)
+            {
+                finchRobot.setLED(0, lightLevel, lightLevel);
+            }
+        }
+
+        static void DisplayColorYellow(Finch finchRobot)
+        {
+            //
+            // Turn Yellow
+            //
+            for (int lightLevel = 0; lightLevel <= 255; lightLevel += 5)
+            {
+                finchRobot.setLED(lightLevel, lightLevel, 0);
+            }
+            finchRobot.wait(250);
+            for (int lightLevel = 255; lightLevel >= 0; lightLevel -= 5)
+            {
+                finchRobot.setLED(lightLevel, lightLevel, 0);
+            }
+        }
+
+        static void DisplayColorBlue(Finch finchRobot)
+        {
+            //
+            // Turn Blue
+            //
+            for (int lightLevel = 0; lightLevel <= 255; lightLevel += 5)
+            {
+                finchRobot.setLED(0, 0, lightLevel);
+            }
+            finchRobot.wait(250);
+            for (int lightLevel = 255; lightLevel >= 0; lightLevel -= 5)
+            {
+                finchRobot.setLED(0, 0, lightLevel);
+            }
+        }
+
+        static void DisplayColorGreen(Finch finchRobot)
+        {
+            //
+            // Turn Green
+            //
+            for (int lightLevel = 0; lightLevel <= 255; lightLevel += 5)
+            {
+                finchRobot.setLED(0, lightLevel, 0);
+            }
+            finchRobot.wait(250);
+            for (int lightLevel = 255; lightLevel >= 0; lightLevel -= 5)
+            {
+                finchRobot.setLED(0, lightLevel, 0);
+            }
+        }
+
+        static void DisplayColorRed(Finch finchRobot)
+        {
+            //
+            // Turn Red
+            //
+            for (int lightLevel = 0; lightLevel <= 255; lightLevel += 5)
+            {
+                finchRobot.setLED(lightLevel, 0, 0);
+            }
+            finchRobot.wait(250);
+            for (int lightLevel = 255; lightLevel >= 0; lightLevel -= 5)
+            {
+                finchRobot.setLED(lightLevel, 0, 0);
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Talent Show: Play a Frequency based on user input
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        static void TelentShowDisplayMusicNote(Finch finchRobot)
+        {
             string userResponse;
             int frequency;
+            bool validResponse;
 
-            Console.WriteLine("Enter Frequency");
-            userResponse = Console.ReadLine();
-            frequency = int.Parse(userResponse);
+            do
+            {
+                validResponse = true;
 
-            Console.WriteLine("\tThe Finch robot will now play your tone");
+                DisplayScreenHeader("Play a Song");
+
+                Console.WriteLine();
+                Console.Write("\tEnter a Frequency For The Finch To Play (15-16000):");
+                userResponse = Console.ReadLine();
+                if (!int.TryParse(userResponse, out frequency))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid frequency");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+                else if (int.TryParse(userResponse, out frequency) && frequency < 15)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid frequency");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+                else if (int.TryParse(userResponse, out frequency) && frequency > 16000)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid frequency");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+                else if (int.TryParse(userResponse, out frequency) && frequency >= 15 && frequency <= 16000)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"\tFrequency Enterd: {frequency}");
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid frequency");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+            } while (!validResponse);
+
+            Console.WriteLine();
+            Console.WriteLine("\tThe Finch Robot Will Now Play a Music Note");
 
             finchRobot.noteOn(frequency);
-            finchRobot.wait(2000);
+            finchRobot.wait(5000);
             finchRobot.noteOff();
-
-            Console.WriteLine("\tMy song is playing now");
-
-
 
             DisplayMenuPrompt("Talent Show");
         }
 
         /// <summary>
-        /// *****************************************************************
-        /// *               Talent Show > Light and Sound                   *
-        /// *****************************************************************
+        /// Talent Show: Spining Around
         /// </summary>
-        /// <param name="finchRobot">finch robot object</param>
-        static void TalentShowDisplayLightAndSound(Finch finchRobot)
+        /// <param name="finchRobot"></param>
+        static void TalentShowDisplaySpinAround(Finch finchRobot)
         {
-            Console.CursorVisible = false;
+            DisplayScreenHeader("Spin Around");
 
-            DisplayScreenHeader("Light and Sound");
-
-            Console.WriteLine("\tThe Finch robot will not show off its glowing talent!");
+            Console.WriteLine();
+            Console.WriteLine("\tThe Finch Robot Will Now Spin Around");
             DisplayContinuePrompt();
 
-            for (int lightSoundLevel = 0; lightSoundLevel < 255; lightSoundLevel++)
+            finchRobot.setMotors(255, 50);
+            finchRobot.wait(3000);
+
+            finchRobot.setMotors(50, 255);
+            finchRobot.wait(3000);
+
+            finchRobot.setMotors(-255, 255);
+            finchRobot.wait(3000);
+
+            finchRobot.setMotors(255, -255);
+            finchRobot.wait(3000);
+
+            finchRobot.setMotors(0, 0);
+
+            DisplayMenuPrompt("Talent Show");
+        }
+
+        static void TalentShowDisplayGoCrazy(Finch finchRobot)
+        {
+            int red;
+            int green;
+            int blue;
+            int left = 0;
+            int right = 0;
+            string direction;
+            int frequency;
+            bool validResponse;
+
+            red = ValidColorRed();
+
+            green = ValidateColorGreen(red);
+
+            blue = ValidateColorBlue(red, green);
+
+            frequency = ValidateFrequency();
+
+            do
             {
-                finchRobot.setLED(lightSoundLevel, lightSoundLevel, lightSoundLevel);
-                finchRobot.noteOn(lightSoundLevel * 100);
+                validResponse = true;
+                DisplayScreenHeader("Go Crazy");
+                Console.WriteLine();
+
+                Console.Write("\tPlease Enter a Direction (left or right):");
+                direction = Console.ReadLine().ToLower();
+
+                if (direction == "right")
+                {
+                    right = -255;
+                    left = 255;
+
+                    Console.WriteLine();
+                    Console.WriteLine("\tYour Entered: Right");
+                }
+                else if (direction == "left")
+                {
+                    right = 255;
+                    left = -255;
+
+                    Console.WriteLine();
+                    Console.WriteLine("\tYour Entered: Left");
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease Enter a Valid Repsonse (left or right)");
+                    DisplayContinuePrompt();
+                    Console.Clear();
+                    validResponse = false;
+                }
+            } while (!validResponse);
+
+            DisplayContinuePrompt();
+            DisplayScreenHeader("Go Crazy");
+            Console.WriteLine("\tYou have entered the following:");
+            Console.WriteLine($"\t1){red}");
+            Console.WriteLine($"\t2){green}");
+            Console.WriteLine($"\t3){blue}");
+            Console.WriteLine($"\t4){frequency}");
+            Console.WriteLine($"\t5){direction}");
+
+            Console.WriteLine();
+            Console.WriteLine("\tThe Finch Robot Will Now Go Crazy");
+            DisplayContinuePrompt();
+
+            finchRobot.setMotors(left, right);
+
+            for (int Flashing = 0; Flashing < 50; Flashing++)
+            {
+                finchRobot.setLED(red, green, blue);
+                finchRobot.noteOn(frequency+ 4 * Flashing);
+                finchRobot.wait(100);
+                finchRobot.setLED(0, 0, 0);
+                finchRobot.noteOff();
+                finchRobot.wait(100);
             }
 
-            DisplayMenuPrompt("Talent Show Menu");
+            finchRobot.setMotors(0, 0);
+
+            DisplayMenuPrompt("Talent Show");
         }
+
+        static int ValidColorRed()
+        {
+            bool validResponse;
+            int red;
+            string userResponse;
+            do
+            {
+                validResponse = true;
+
+                DisplayScreenHeader("Go Crazy");
+
+                Console.WriteLine();
+                Console.WriteLine("\tThe Finch Robot Will Now Move, Shine, And Make Some Noise");
+                Console.WriteLine();
+
+                Console.WriteLine("\tPlease Enter Three Values from 0-255:");
+                Console.Write("\t1)");
+
+                //
+                // User response for the color red
+                //
+                userResponse = Console.ReadLine();
+                if (!int.TryParse(userResponse, out red))
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out red) && red < 0)
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out red) && red > 255)
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out red) && red >= 0 && red <= 255)
+                {
+
+                }
+                else
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+            } while (!validResponse);
+
+            return red;
+        }
+
+        static int ValidateColorGreen(int red)
+        {
+            bool validResponse;
+            int green;
+            string userResponse;
+            do
+            {
+                validResponse = true;
+
+                DisplayScreenHeader("Go Crazy");
+
+                Console.WriteLine();
+                Console.WriteLine("\tThe Finch Robot Will Now Move, Shine, And Make Some Noise");
+                Console.WriteLine();
+
+                Console.WriteLine("\tPlease Enter Three Values from 0-255:");
+                Console.WriteLine($"\t1){red}");
+                Console.Write("\t2)");
+                //
+                // user response for the color green
+                //
+                userResponse = Console.ReadLine();
+                if (!int.TryParse(userResponse, out green))
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out green) && green < 0)
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out green) && green > 255)
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out green) && green >= 0 && green <= 255)
+                {
+
+                }
+                else
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+            } while (!validResponse);
+
+            return green;
+        }
+
+        static int ValidateColorBlue(int red, int green)
+        {
+            bool validResponse;
+            int blue;
+            string userResponse;
+            do
+            {
+                validResponse = true;
+
+                DisplayScreenHeader("Go Crazy");
+
+                Console.WriteLine();
+                Console.WriteLine("\tThe Finch Robot Will Now Move, Shine, And Make Some Noise");
+                Console.WriteLine();
+
+                Console.WriteLine("\tPlease Enter Three Values from 0-255:");
+                Console.WriteLine($"\t1){red}");
+                Console.WriteLine($"\t2){green}");
+                Console.Write("\t3)");
+                //
+                // user response for the color blue
+                //
+                userResponse = Console.ReadLine();
+                if (!int.TryParse(userResponse, out blue))
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out blue) && blue < 0)
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out blue) && blue > 255)
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out blue) && blue >= 0 && blue <= 255)
+                {
+
+                }
+                else
+                {
+                    InvalidRepsonseNumber();
+                    validResponse = false;
+                }
+            } while (!validResponse);
+
+            return blue;
+        }
+
+        static int ValidateFrequency()
+        {
+            int frequency;
+            string userResponse;
+            bool validResponse;
+            do
+            {
+                validResponse = true;
+
+                DisplayScreenHeader("Go Crazy");
+
+                Console.WriteLine();
+                Console.Write("\tEnter a Frequency For The Finch To Play (15-16000):");
+                userResponse = Console.ReadLine();
+                if (!int.TryParse(userResponse, out frequency))
+                {
+                    InvalidFrequency();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out frequency) && frequency < 15)
+                {
+                    InvalidFrequency();
+                    validResponse = false; ;
+                }
+                else if (int.TryParse(userResponse, out frequency) && frequency > 16000)
+                {
+                    InvalidFrequency();
+                    validResponse = false;
+                }
+                else if (int.TryParse(userResponse, out frequency) && frequency >= 15 && frequency <= 16000)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"\tFrequency Entered: {frequency}");
+                }
+                else
+                {
+                    InvalidFrequency();
+                    validResponse = false;
+
+                }
+            } while (!validResponse);
+
+            return frequency;
+        }
+
+        static void InvalidFrequency()
+        {
+            Console.WriteLine();
+            Console.WriteLine("\tPlease enter a valid frequency");
+            DisplayContinuePrompt();
+            Console.Clear();
+        }
+
+        static void InvalidRepsonseNumber()
+        {
+            bool validResponse;
+
+            Console.WriteLine();
+            Console.WriteLine("\tPlease enter a valid number");
+            DisplayContinuePrompt();
+            Console.Clear();
+        }
+
+
+
+        //static void TelentShowDisplayPlaySong(Finch finchRobot)
+        //{
+        //    DisplayScreenHeader("Play my Song");
+
+        //    //Console.WriteLine();
+        //    //Console.WriteLine("\tThe Finch Robot Will Now Play a Song.");
+        //    //DisplayContinuePrompt();
+
+        //    string userResponse;
+        //    int frequency;
+
+        //    Console.WriteLine("Enter Frequency");
+        //    userResponse = Console.ReadLine();
+        //    frequency = int.Parse(userResponse);
+
+        //    Console.WriteLine("\tThe Finch robot will now play your tone");
+
+        //    finchRobot.noteOn(frequency);
+        //    finchRobot.wait(2000);
+        //    finchRobot.noteOff();
+
+        //    Console.WriteLine("\tMy song is playing now");
+
+
+
+        //    DisplayMenuPrompt("Talent Show");
+        //}
+
+        ///// <summary>
+        ///// *****************************************************************
+        ///// *               Talent Show > Light and Sound                   *
+        ///// *****************************************************************
+        ///// </summary>
+        ///// <param name="finchRobot">finch robot object</param>
+        //static void TalentShowDisplayLightAndSound(Finch finchRobot)
+        //{
+        //    Console.CursorVisible = false;
+
+        //    DisplayScreenHeader("Light and Sound");
+
+        //    Console.WriteLine("\tThe Finch robot will not show off its glowing talent!");
+        //    DisplayContinuePrompt();
+
+        //    for (int lightSoundLevel = 0; lightSoundLevel < 255; lightSoundLevel++)
+        //    {
+        //        finchRobot.setLED(lightSoundLevel, lightSoundLevel, lightSoundLevel);
+        //        finchRobot.noteOn(lightSoundLevel * 100);
+        //    }
+
+        //    DisplayMenuPrompt("Talent Show Menu");
+        //}
 
         #endregion
 
