@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using FinchAPI;
 
 namespace Project_FinchControl
@@ -13,7 +14,7 @@ namespace Project_FinchControl
     // Application Type: Console
     // Author: Cameron Carlson
     // Dated Created: 2/17/2021
-    // Last Modified: 2/21/2021
+    // Last Modified: 2/28/2021
     //
     // ****************************************************************************************************
 
@@ -126,17 +127,62 @@ namespace Project_FinchControl
         static void DataRecorderDisplayMenuScreen(Finch finchRobot)
         {
             Console.CursorVisible = true;
+            bool validResponse;
+            string dataType;
 
+            do
+            {
+                validResponse = true;
+
+                DisplayScreenHeader("Data Recorder Menu");
+
+                Console.Write("\tLight Data or Temperature Data: ");
+                dataType = Console.ReadLine().ToLower();
+                //
+                // Light Data or Temperature Data
+                //
+                if (dataType == "light" || dataType == "light data")
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tYou entered Light Data.");
+                    DisplayContinuePrompt();
+                    DataRecorderDisplayLightDataMenu(finchRobot);
+                }
+                else if (dataType == "temperature" || dataType == "temperature data")
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tYou entered Temperature Data.");
+                    DisplayContinuePrompt();
+                    DataRecorderDisplayTemperatureDataMenu(finchRobot);
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a letter for the menu choice.");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                }
+            } while (!validResponse);
+        }
+
+        /// <summary>
+        /// Ligth Data Recorder Main Menu
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        static void DataRecorderDisplayLightDataMenu(Finch finchRobot)
+        {
             bool quitMenu = false;
+
             string menuChoice;
 
             int numberOfDataPoints = 0;
             double dataPointFrequency = 0;
-            double[] temperatures;
+            int[] lightDataLeftSensor = null;
+            int[] lightDataRightSensor = null;
 
             do
             {
-                DisplayScreenHeader("Data Recorder Menu");
+                DisplayScreenHeader("Light Data Recorder Menu");
 
                 //
                 // get user menu choice
@@ -145,7 +191,7 @@ namespace Project_FinchControl
                 Console.WriteLine("\tb) Frequency of Data Points");
                 Console.WriteLine("\tc) Get Data");
                 Console.WriteLine("\td) Show Data");
-                Console.WriteLine("\tq) Main Menu");
+                Console.WriteLine("\te) Main Menu");
                 Console.Write("\t\tEnter Choice:");
                 menuChoice = Console.ReadLine().ToLower();
 
@@ -163,14 +209,14 @@ namespace Project_FinchControl
                         break;
 
                     case "c":
-                        temperatures = DataRecorderDisplayGetData(numberOfDataPoints, dataPointFrequency, finchRobot);
+                        (lightDataLeftSensor, lightDataRightSensor)= DataRecorderDisplayGetLightData(numberOfDataPoints, dataPointFrequency, finchRobot);
                         break;
 
                     case "d":
-                        
+                        DataRecorderDisplayGetLightDataProcess(lightDataLeftSensor, lightDataRightSensor);
                         break;
 
-                    case "q":
+                    case "e":
                         quitMenu = true;
                         break;
 
@@ -180,8 +226,295 @@ namespace Project_FinchControl
                         DisplayContinuePrompt();
                         break;
                 }
-
             } while (!quitMenu);
+        }
+
+        /// <summary>
+        /// Light Data Table Process
+        /// </summary>
+        /// <param name="lightDataLeftSensor"></param>
+        /// <param name="lightDataRightSensor"></param>
+        static void DataRecorderDisplayGetLightDataProcess(int[] lightDataLeftSensor, int[] lightDataRightSensor)
+        {
+            DisplayScreenHeader("Light Levels");
+
+            DataRecorderDisplayLightDataTable(lightDataLeftSensor, lightDataRightSensor);
+
+            DisplayMenuPrompt("Data Recorder");
+        }
+
+        /// <summary>
+        /// Light Data Table
+        /// </summary>
+        /// <param name="lightDataLeftSensor"></param>
+        /// <param name="lightDataRightSensor"></param>
+        static void DataRecorderDisplayLightDataTable(int[] lightDataLeftSensor, int[] lightDataRightSensor)
+        {
+            double averageLeftLightLevel;
+            double averageRightLightLevel;
+
+            Console.WriteLine();
+            Console.WriteLine(
+                "Reading #".PadLeft(20) +
+                "Left Light Sensor".PadLeft(30) +
+                "Right Light Sensor".PadLeft(30)
+
+                );
+            Console.WriteLine(
+                "---------".PadLeft(20) +
+                "-----------------".PadLeft(30) +
+                "------------------".PadLeft(30)
+                );
+            for (int index = 0; index < lightDataLeftSensor.Length; index++)
+            {
+                Console.WriteLine(
+                (index + 1).ToString().PadLeft(20) +
+                (lightDataLeftSensor[index]).ToString("n1").PadLeft(30) +
+                (lightDataRightSensor[index]).ToString("n1").PadLeft(30)
+
+                );
+            }
+            Console.WriteLine();
+            Console.WriteLine(
+                "Average Left Light Level".PadLeft(40) +
+                "Average Right Light Level".PadLeft(40)
+
+                );
+            Console.WriteLine(
+                "------------------------".PadLeft(40) +
+                "-------------------------".PadLeft(40)
+                );
+            averageLeftLightLevel = DataRecorderDisplayAverageLeftLightSensor(lightDataLeftSensor);
+            averageRightLightLevel = DataRecorderDisplayAverageRightLightSensor(lightDataRightSensor);
+            Console.WriteLine(
+                (averageLeftLightLevel).ToString("n1").PadLeft(40) +
+                (averageRightLightLevel).ToString("n1").PadLeft(40)
+                );
+        }
+
+        /// <summary>
+        /// Right Light Sensor Average
+        /// </summary>
+        /// <param name="lightDataRightSensor"></param>
+        /// <returns></returns>
+        static double DataRecorderDisplayAverageRightLightSensor(int[] lightDataRightSensor)
+        {
+            double averageRightLightLevel;
+
+            averageRightLightLevel = lightDataRightSensor.Average();
+
+            return averageRightLightLevel;
+        }
+
+        /// <summary>
+        /// Left Data Sensor Average
+        /// </summary>
+        /// <param name="lightDataLeftSensor"></param>
+        /// <returns></returns>
+        static double DataRecorderDisplayAverageLeftLightSensor(int[] lightDataLeftSensor)
+        {
+            double averageLeftLightLevel;
+
+            averageLeftLightLevel = lightDataLeftSensor.Average();
+
+            return averageLeftLightLevel;
+        }
+
+        /// <summary>
+        /// Get ligth sensor data from finch robot
+        /// </summary>
+        /// <param name="numberOfDataPoints"></param>
+        /// <param name="dataPointFrequency"></param>
+        /// <param name="finchRobot"></param>
+        /// <returns></returns>
+        static (int[] lightDataLeftSensor, int[] lightDataRightSensor) DataRecorderDisplayGetLightData(int numberOfDataPoints, double dataPointFrequency, Finch finchRobot)
+        {
+            int[] lightDataLeftSensor = new int[numberOfDataPoints];
+            int[] lightDataRightSensor = new int[numberOfDataPoints];
+            int dataPointFrequencyMs;
+            DisplayScreenHeader("Light Data Recorder Menu");
+
+            //
+            // Convert the frequenct=y in ms
+            //
+            dataPointFrequencyMs = (int)(dataPointFrequency * 1000);
+
+            //
+            // echo the values
+            //
+            Console.WriteLine($"\tThe Finch robot will now record {numberOfDataPoints} temperatures {dataPointFrequency} seconds apart.");
+            Console.WriteLine();
+            Console.WriteLine("\tPress any key to begin");
+            Console.ReadKey();
+            Console.WriteLine();
+
+            for (int index = 0; index < numberOfDataPoints; index++)
+            {
+                lightDataLeftSensor[index] = finchRobot.getLeftLightSensor();
+                lightDataRightSensor[index] = finchRobot.getRightLightSensor();
+                finchRobot.wait(dataPointFrequencyMs);
+
+                Console.WriteLine($"\tLight Level {index + 1}:  {lightDataLeftSensor[index]:n1}     {lightDataRightSensor[index]:n1}");
+            }
+
+            DataRecorderDisplayLightDataTable(lightDataLeftSensor, lightDataRightSensor);
+
+            DisplayMenuPrompt("Data Recorder");
+
+            return (lightDataLeftSensor, lightDataRightSensor);
+        }
+
+        /// <summary>
+        /// Temperature data menu
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        static void DataRecorderDisplayTemperatureDataMenu(Finch finchRobot)
+        {
+            bool quitMenu = false;
+
+            string menuChoice;
+
+            int numberOfDataPoints = 0;
+            double dataPointFrequency = 0;
+            double[] temperaturesCelsius = null;
+            double[] temperaturesFahrenheit = null;
+
+            do
+            {
+                DisplayScreenHeader("Temperature Data Recorder Menu");
+
+                //
+                // get user menu choice
+                //
+                Console.WriteLine("\ta) Number of Data Points");
+                Console.WriteLine("\tb) Frequency of Data Points");
+                Console.WriteLine("\tc) Get Data");
+                Console.WriteLine("\td) Show Data");
+                Console.WriteLine("\te) Main Menu");
+                Console.Write("\t\tEnter Choice:");
+                menuChoice = Console.ReadLine().ToLower();
+
+                //
+                // process user menu choice
+                //
+                switch (menuChoice)
+                {
+                    case "a":
+                        numberOfDataPoints = DataRecorderDisplayGetNumberOfDataPoints();
+                        break;
+
+                    case "b":
+                        dataPointFrequency = DataRecorderDisplayGetDataPointFrequency();
+                        break;
+
+                    case "c":
+                        (temperaturesCelsius, temperaturesFahrenheit) = DataRecorderDisplayGetTemperatureData(numberOfDataPoints, dataPointFrequency, finchRobot);
+                        break;
+
+                    case "d":
+                        DataRecorderDisplayGetTemperatureDataProcess(temperaturesCelsius, temperaturesFahrenheit);
+                        break;
+
+                    case "e":
+                        quitMenu = true;
+                        break;
+
+                    default:
+                        Console.WriteLine();
+                        Console.WriteLine("\tPlease enter a letter for the menu choice.");
+                        DisplayContinuePrompt();
+                        break;
+                }
+            } while (!quitMenu);
+        }
+
+        /// <summary>
+        /// create temperature data table
+        /// </summary>
+        /// <param name="temperaturesCelcius"></param>
+        static void DataRecorderDisplayDataTable(double[] temperaturesCelcius, double[] temperaturesFahrenheit)
+        {
+            double averageTemperatureCelcius;
+            double averageTemperatureFehrenheit;
+
+            Console.WriteLine();
+            Console.WriteLine(
+                "Reading #".PadLeft(20) +
+                "Temperature Celcius".PadLeft(30) +
+                "Temperature Fahrenheit".PadLeft(30)
+
+                );
+            Console.WriteLine(
+                "---------".PadLeft(20) +
+                "-------------------".PadLeft(30) +
+                "----------------------".PadLeft(30)
+                );
+            for (int index = 0; index < temperaturesCelcius.Length; index++)
+            {
+                Console.WriteLine(
+                (index + 1).ToString().PadLeft(20) +
+                ((temperaturesCelcius[index]).ToString("n1") + " °C").PadLeft(30) +
+                ((temperaturesFahrenheit[index]).ToString("n1") + " °F").PadLeft(30)
+
+                );
+            }
+            Console.WriteLine();
+            Console.WriteLine(
+                "Average Temperature Celcius".PadLeft(40) +
+                "Average Temperature Fahrenheit".PadLeft(40)
+
+                );
+            Console.WriteLine(
+                "---------------------------".PadLeft(40) +
+                "------------------------------".PadLeft(40)
+                );
+            averageTemperatureCelcius = DataRecorderDisplayAverageTemperaturesCelcius(temperaturesCelcius);
+            averageTemperatureFehrenheit = DataRecorderDisplayAverageTemperaturesFehrenheit(temperaturesFahrenheit);
+            Console.WriteLine(
+                ((averageTemperatureCelcius).ToString("n1") + " °C").PadLeft(40) +
+                ((averageTemperatureFehrenheit).ToString("n1") + " °F").PadLeft(40)
+                );
+        }
+
+        /// <summary>
+        /// Get average temperature in fehrenheit
+        /// </summary>
+        /// <param name="temperaturesFahrenheit"></param>
+        /// <returns>averageTemperatureFehrenheit</returns>
+        static double DataRecorderDisplayAverageTemperaturesFehrenheit(double[] temperaturesFahrenheit)
+        {
+            double averageTemperatureFehrenheit;
+
+            averageTemperatureFehrenheit = temperaturesFahrenheit.Average();
+
+            return averageTemperatureFehrenheit;
+        }
+
+        /// <summary>
+        /// Get average temperature in celcius
+        /// </summary>
+        /// <param name="temperaturesCelcius"></param>
+        /// <returns>averageTemperatureCelcius</returns>
+        static double DataRecorderDisplayAverageTemperaturesCelcius(double[] temperaturesCelcius)
+        {
+            double averageTemperatureCelcius;
+
+            averageTemperatureCelcius = temperaturesCelcius.Average();
+
+            return averageTemperatureCelcius;
+        }
+
+        /// <summary>
+        /// Display temperature data in a table
+        /// </summary>
+        /// <param name="temperatures"></param>
+        static void DataRecorderDisplayGetTemperatureDataProcess(double[] temperaturesCelsius, double[] temperaturesFahrenheit)
+        {
+            DisplayScreenHeader("Temperatures");
+
+            DataRecorderDisplayDataTable(temperaturesCelsius, temperaturesFahrenheit);
+
+            DisplayMenuPrompt("Data Recorder");
         }
 
         /// <summary>
@@ -191,10 +524,11 @@ namespace Project_FinchControl
         /// <param name="dataPointFrequency"></param>
         /// <param name="finchRobot"></param>
         /// <returns>termperatues</returns>
-        static double[] DataRecorderDisplayGetData(int numberOfDataPoints, double dataPointFrequency, Finch finchRobot)
+        static (double[], double[]) DataRecorderDisplayGetTemperatureData(int numberOfDataPoints, double dataPointFrequency, Finch finchRobot)
         {
-            double[] temperatures = new double[numberOfDataPoints];
+            double[] temperaturesCelsius = new double[numberOfDataPoints];
             int dataPointFrequencyMs;
+            double[] temperaturesFahrenheit = new double[numberOfDataPoints];
 
             //
             // Convert the frequenct=y in ms
@@ -213,38 +547,42 @@ namespace Project_FinchControl
 
             for (int index = 0; index < numberOfDataPoints; index++)
             {
-                temperatures[index]  = finchRobot.getTemperature();
+                temperaturesCelsius[index]  = finchRobot.getTemperature();
                 finchRobot.wait(dataPointFrequencyMs);
+
+                //
+                // Convert to fahrenheit
+                //
+                temperaturesFahrenheit = DataRecorderDisplayDataConvertToFahrenheit(temperaturesCelsius);
 
                 //
                 // Echo new temperature
                 //
-                Console.WriteLine($"\tTemperature {index + 1}: {temperatures[index]:n1}");
+                Console.WriteLine($"\tTemperature {index + 1}:  {temperaturesCelsius[index]:n1} °C   {temperaturesFahrenheit[index]:n1} °F");
             }
 
-            //
-            // display table of temperatures
-            //
-            Console.WriteLine();
-            Console.WriteLine(
-                "Reading #".PadLeft(20) +
-                "Temperature".PadLeft(15)
-                );
-            Console.WriteLine(
-                "---------".PadLeft(20) +
-                "-----------".PadLeft(15)
-                );
-            for (int index = 0; index < numberOfDataPoints; index++)
-            {
-                Console.WriteLine(
-                (index + 1).ToString().PadLeft(20) +
-                (temperatures[index]).ToString().PadLeft(15)
-                );
-            }
+            DataRecorderDisplayDataTable(temperaturesCelsius, temperaturesFahrenheit);
 
             DisplayMenuPrompt("Data Recorder");
 
-            return temperatures;
+            return (temperaturesCelsius, temperaturesFahrenheit);
+        }
+
+        /// <summary>
+        /// Convert temperature to fahrenheit
+        /// </summary>
+        /// <param name="temperaturesCelsius"></param>
+        /// <returns>temperaturesFahrenheit</returns>
+        static double[] DataRecorderDisplayDataConvertToFahrenheit(double[] temperaturesCelsius)
+        {
+            double[] temperaturesFahrenheit = new double[temperaturesCelsius.Length];
+
+            for (int index = 0; index < temperaturesCelsius.Length; index++)
+            {
+                temperaturesFahrenheit[index] = temperaturesCelsius[index]* 9 / 5 + 32;
+            }
+
+            return temperaturesFahrenheit;
         }
 
         /// <summary>
@@ -253,19 +591,45 @@ namespace Project_FinchControl
         /// <returns>Data Point Frequency</returns>
         static double DataRecorderDisplayGetDataPointFrequency()
         {
-            double DataPointFrequency;
+            double dataPointFrequency;
+            string userResponse;
+            bool validResponse;
 
-            DisplayScreenHeader("Data Points Frequency");
+            do
+            {
+                validResponse = true;
+                DisplayScreenHeader("Data Points Frequency");
 
-            Console.Write("\tData Point Frequency in Seconds:");                                                            //*******************************************
-            DataPointFrequency = double.Parse(Console.ReadLine());                                                          // Validate this number                     *
-                                                                                                                            //*******************************************
+                Console.Write("\tData Point Frequency in Seconds:");
+                userResponse = Console.ReadLine();
+                if (!double.TryParse(userResponse, out dataPointFrequency))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid number (2, 5.5, etc.)");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+                else if (double.TryParse(userResponse, out dataPointFrequency) && dataPointFrequency < 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid number (2, 5.5, etc.)");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+                else
+                {
+                    validResponse = true;
+                }
+            } while (!validResponse);
+
             Console.WriteLine();
-            Console.WriteLine($"\tYou chose {DataPointFrequency} as the data point frequency.");
+            Console.WriteLine($"\tYou chose {dataPointFrequency} as the data point frequency.");
 
             DisplayMenuPrompt("Data Recorder");
 
-            return DataPointFrequency;
+            return dataPointFrequency;
         }
 
         /// <summary>
@@ -275,12 +639,38 @@ namespace Project_FinchControl
         static int DataRecorderDisplayGetNumberOfDataPoints()
         {
             int numberOfDataPoints;
+            string userResponse;
+            bool validResponse;
 
-            DisplayScreenHeader("Number of Data Points");
+            do
+            {
+                validResponse = true;
+                DisplayScreenHeader("Number of Data Points");
 
-            Console.Write("\tNumber of Data Points:");                                                                      //*******************************************
-            numberOfDataPoints = int.Parse(Console.ReadLine());                                                             // Validate this number                     *
-                                                                                                                            //*******************************************
+                Console.Write("\tNumber of Data Points:");
+                userResponse = Console.ReadLine();
+                if (!int.TryParse(userResponse, out numberOfDataPoints))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid integer (2, 5, 11, etc.)");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+                else if (int.TryParse(userResponse, out numberOfDataPoints) && numberOfDataPoints < 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease enter a valid integer (2, 5, 11, etc.)");
+                    DisplayContinuePrompt();
+                    validResponse = false;
+                    Console.Clear();
+                }
+                else
+                {
+                    validResponse = true;
+                }
+            } while (!validResponse);
+           
             Console.WriteLine();
             Console.WriteLine($"\tYou chose {numberOfDataPoints} as the number of data points.");
 
@@ -1040,8 +1430,8 @@ namespace Project_FinchControl
                 Console.WriteLine();
                 Console.WriteLine("\t\tFinch Robot is Connected");
                 finchRobot.setLED(0, 255, 255);
-                finchRobot.noteOn(10000);
-                finchRobot.wait(1000);
+                finchRobot.noteOn(5000);
+                finchRobot.wait(100);
                 finchRobot.setLED(0, 0, 0);
                 finchRobot.noteOff();
             }
