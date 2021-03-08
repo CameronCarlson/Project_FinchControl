@@ -14,7 +14,7 @@ namespace Project_FinchControl
     // Application Type: Console
     // Author: Cameron Carlson
     // Dated Created: 2/17/2021
-    // Last Modified: 2/28/2021
+    // Last Modified: 3/8/2021
     //
     // ****************************************************************************************************
 
@@ -119,9 +119,6 @@ namespace Project_FinchControl
 
         #region ALARM SYSTEM
 
-        //
-        // validate alarm system menu choice
-        //
         /// <summary>
         /// Alarm System Menu
         /// </summary>
