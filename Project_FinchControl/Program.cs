@@ -208,13 +208,25 @@ namespace Project_FinchControl
             DisplayScreenHeader("Set Alarm");
 
             // Echo Values to user
-            Console.WriteLine("\tStart");
+            Console.WriteLine($"\tSensors to Minitor Entered: {sensorsToMonitor}");
+            Console.WriteLine($"\tRange Type Entered: {rangeTyple}");
+            Console.WriteLine($"\tThreshold Entered: {minMaxThresholdValue}");
+            Console.WriteLine($"\tTime to Monitor: {timeToMonitor}");
 
             // Prompt user to start
-            Console.ReadKey();
+            DisplayContinuePrompt();
 
             do
             {
+                Console.Clear();
+
+                DisplayScreenHeader("Set Alarm");
+
+                // Echo Values to user
+                Console.WriteLine($"\tSensors to Minitor Entered: {sensorsToMonitor}");
+                Console.WriteLine($"\tRange Type Entered: {rangeTyple}");
+                Console.WriteLine($"\tThreshold Entered: {minMaxThresholdValue}");
+                Console.WriteLine($"\tTime to Monitor: {timeToMonitor}");
                 //
                 // Get current current light levels
                 //
@@ -224,19 +236,20 @@ namespace Project_FinchControl
                 //
                 // Display Current Light Levels
                 //
+                Console.WriteLine();
                 switch (sensorsToMonitor)
                 {
                     case "left":
-                        Console.WriteLine($"Current Left Light Sensor: {leftLightSensorValue}");
+                        Console.WriteLine($"\tCurrent Left Light Sensor: {leftLightSensorValue}");
                         break;
 
                     case "right":
-                        Console.WriteLine($"Current Right Light Sensor: {rightLightSensorValue}");
+                        Console.WriteLine($"\tCurrent Right Light Sensor: {rightLightSensorValue}");
                         break;
 
                     case "both":
-                        Console.WriteLine($"Current Left Light Sensor: {leftLightSensorValue}");
-                        Console.WriteLine($"Current Right Light Sensor: {rightLightSensorValue}");
+                        Console.WriteLine($"\tCurrent Left Light Sensor: {leftLightSensorValue}");
+                        Console.WriteLine($"\tCurrent Right Light Sensor: {rightLightSensorValue}");
                         break;
 
                     default:
@@ -247,6 +260,8 @@ namespace Project_FinchControl
                 //
                 // Wait 1 second and increment seconds
                 //
+                Console.WriteLine();
+                Console.WriteLine($"\tTime Remaining: {timeToMonitor - secondsElapsed}");
                 finchRobot.wait(1000);
                 secondsElapsed++;
 
@@ -302,21 +317,19 @@ namespace Project_FinchControl
             //
             // display result of alarm
             //
+            Console.WriteLine();
             if (thresholdExceeded)
             {
                 Console.WriteLine("\tThreshold Exceeded");
             }
             else
             {
-                Console.WriteLine("\tThreshold Not Exceeded - Time Limit Exceeded");
+                Console.WriteLine("\tThreshold Not Exceeded - Time Limit Reached");
             }
 
             DisplayMenuPrompt("Alarm System");
         }
 
-        //
-        // Need to validate timeToMonitor
-        //
         /// <summary>
         /// Get Time to monitor from user
         /// </summary>
@@ -324,20 +337,43 @@ namespace Project_FinchControl
         static int AlarmSystemDisplayGetTimeToMonitor()
         {
             int timeToMonitor = 0;
+            string userResponse;
+            bool validResponse;
 
-            DisplayScreenHeader("Time to Monitor");
+            do
+            {
+                validResponse = true;
+                DisplayScreenHeader("Time to Monitor");
 
-            Console.Write("\tEnter Time to Monitor:");
-            timeToMonitor = int.Parse(Console.ReadLine());                                                                      //Validate timeToMonitor
+                Console.Write("\tEnter Time to Monitor:");
+                userResponse = Console.ReadLine();
+                if (!int.TryParse(userResponse, out timeToMonitor))
+                {
+                    Console.WriteLine("\tPlease Enter a Posotive Integer");
+                    validResponse = false;
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                else if (int.TryParse(userResponse, out timeToMonitor) && timeToMonitor <= 0)
+                {
+                    Console.WriteLine("\tPlease Enter a Posotive Integer");
+                    validResponse = false;
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                else
+                {
+                    int.TryParse(userResponse, out timeToMonitor);
+                }
+            } while (!validResponse);
+            Console.WriteLine();
+            Console.WriteLine($"\tTime to Monitor Entered: {timeToMonitor}");
 
             DisplayMenuPrompt("Alarm System");
 
             return timeToMonitor;
         }
 
-        //
-        // Need to validate threshold
-        //
         /// <summary>
         /// Get threshold value from the user
         /// </summary>
