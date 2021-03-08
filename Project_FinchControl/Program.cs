@@ -91,7 +91,7 @@ namespace Project_FinchControl
                         break;
 
                     case "d":
-
+                        AlarmSystemDisplayMenuScreen(finchRobot);
                         break;
 
                     case "e":
@@ -116,6 +116,583 @@ namespace Project_FinchControl
 
             } while (!quitApplication);
         }
+
+        #region ALARM SYSTEM
+
+        //
+        // validate alarm system menu choice
+        //
+        /// <summary>
+        /// Alarm System Menu
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        static void AlarmSystemDisplayMenuScreen(Finch finchRobot)
+        {
+            bool quitMenu = false;
+            string menuChoice;
+
+            string sensorsToMonitor = "";
+            string rangeType = "";
+            int minMaxThresholdValue = 0;
+            int timeToMonitor = 0;
+
+            do
+            {
+                DisplayScreenHeader("Alarm System Menu");
+
+                //
+                // get user menu choice
+                //
+                Console.WriteLine("\ta) Set Sensors to Monitor");
+                Console.WriteLine("\tb) Set Range Type");
+                Console.WriteLine("\tc) Set Minimum/Maximum Threshold Value");
+                Console.WriteLine("\td) Set Time to Monitor");
+                Console.WriteLine("\te) Set Alarm");
+                Console.WriteLine("\tf) Main Menu");
+                Console.Write("\t\tEnter Choice:");
+                menuChoice = Console.ReadLine().ToLower();
+
+                //
+                // process user menu choice
+                //
+                switch (menuChoice)
+                {
+                    case "a":
+                        sensorsToMonitor = AlarmSystemDisplaySetSensors();
+                        break;
+
+                    case "b":
+                        rangeType = AlarmSystemDisplaySetRangeType();
+                        break;
+
+                    case "c":
+                        minMaxThresholdValue = AlarmSystemDisplayGetThresholdValue(sensorsToMonitor, finchRobot, rangeType);
+                        break;
+
+                    case "d":
+                        timeToMonitor = AlarmSystemDisplayGetTimeToMonitor();
+                        break;
+
+                    case "e":
+                        AlarmSystemDisplaySetAlarm(finchRobot, sensorsToMonitor, rangeType, minMaxThresholdValue, timeToMonitor);
+                        break;
+
+                    case "f":
+                        quitMenu = true;
+                        break;
+
+                    default:
+                        Console.WriteLine();
+                        Console.WriteLine("\tPlease enter a letter for the menu choice.");
+                        DisplayContinuePrompt();
+                        break;
+                }
+            } while (!quitMenu);
+        }
+
+        /// <summary>
+        /// Alarm menu and start alarm
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        /// <param name="sensorsToMonitor"></param>
+        /// <param name="rangeTyple"></param>
+        /// <param name="minMaxThresholdValue"></param>
+        /// <param name="timeToMonitor"></param>
+        static void AlarmSystemDisplaySetAlarm(Finch finchRobot, string sensorsToMonitor, string rangeTyple, int minMaxThresholdValue, int timeToMonitor)
+        {
+            bool thresholdExceeded = false;
+            int secondsElapsed = 1;
+            int leftLightSensorValue;
+            int rightLightSensorValue;
+
+            DisplayScreenHeader("Set Alarm");
+
+            // Echo Values to user
+            Console.WriteLine("\tStart");
+
+            // Prompt user to start
+            Console.ReadKey();
+
+            do
+            {
+                //
+                // Get current current light levels
+                //
+                leftLightSensorValue = finchRobot.getLeftLightSensor();
+                rightLightSensorValue = finchRobot.getRightLightSensor();
+
+                //
+                // Display Current Light Levels
+                //
+                switch (sensorsToMonitor)
+                {
+                    case "left":
+                        Console.WriteLine($"Current Left Light Sensor: {leftLightSensorValue}");
+                        break;
+
+                    case "right":
+                        Console.WriteLine($"Current Right Light Sensor: {rightLightSensorValue}");
+                        break;
+
+                    case "both":
+                        Console.WriteLine($"Current Left Light Sensor: {leftLightSensorValue}");
+                        Console.WriteLine($"Current Right Light Sensor: {rightLightSensorValue}");
+                        break;
+
+                    default:
+                        Console.WriteLine("\tUnknown Sensor Reference");
+                        break;
+                }
+
+                //
+                // Wait 1 second and increment seconds
+                //
+                finchRobot.wait(1000);
+                secondsElapsed++;
+
+                //
+                // Test for threshold exceeded
+                //
+                switch (sensorsToMonitor)
+                {
+                    case "left":
+                        if (rangeTyple == "minimum")
+                        {
+                            //if (leftLightSensorValue < minMaxThresholdValue)
+                            //{
+                            //    thresholdExceeded = true;
+                            //}
+                            thresholdExceeded = (leftLightSensorValue < minMaxThresholdValue);
+                        }
+                        else   // maximum
+                        {
+                            thresholdExceeded = (leftLightSensorValue > minMaxThresholdValue);
+                        }
+                        break;
+
+                    case "right":
+                        if (rangeTyple == "minimum")
+                        {
+                            thresholdExceeded = (rightLightSensorValue < minMaxThresholdValue);
+                        }
+                        else   // maximum
+                        {
+                            thresholdExceeded = (rightLightSensorValue > minMaxThresholdValue);
+                        }
+                        break;
+
+                    case "both":
+                        if (rangeTyple == "minimum")
+                        {
+                            thresholdExceeded = (leftLightSensorValue < minMaxThresholdValue || rightLightSensorValue < minMaxThresholdValue);
+                        }
+                        else   // maximum
+                        {
+                            thresholdExceeded = (leftLightSensorValue > minMaxThresholdValue || rightLightSensorValue > minMaxThresholdValue);
+                        }
+                        break;
+
+                    default:
+                        
+                        break;
+                }
+
+            } while (!thresholdExceeded && secondsElapsed <= timeToMonitor);
+
+            //
+            // display result of alarm
+            //
+            if (thresholdExceeded)
+            {
+                Console.WriteLine("\tThreshold Exceeded");
+            }
+            else
+            {
+                Console.WriteLine("\tThreshold Not Exceeded - Time Limit Exceeded");
+            }
+
+            DisplayMenuPrompt("Alarm System");
+        }
+
+        //
+        // Need to validate timeToMonitor
+        //
+        /// <summary>
+        /// Get Time to monitor from user
+        /// </summary>
+        /// <returns>timeToMonitor</returns>
+        static int AlarmSystemDisplayGetTimeToMonitor()
+        {
+            int timeToMonitor = 0;
+
+            DisplayScreenHeader("Time to Monitor");
+
+            Console.Write("\tEnter Time to Monitor:");
+            timeToMonitor = int.Parse(Console.ReadLine());                                                                      //Validate timeToMonitor
+
+            DisplayMenuPrompt("Alarm System");
+
+            return timeToMonitor;
+        }
+
+        //
+        // Need to validate threshold
+        //
+        /// <summary>
+        /// Get threshold value from the user
+        /// </summary>
+        /// <param name="sensorsToMonitor"></param>
+        /// <param name="finchRobot"></param>
+        /// <returns>thresholfValue</returns>
+        static int AlarmSystemDisplayGetThresholdValue(string sensorsToMonitor, Finch finchRobot, string rangeType)
+        {
+            int thresholdValue = 0;
+            bool validResponse;
+            bool validSensorReference = true;
+            bool validRangeType = true;
+            string userResponse;
+            int currentLeftSensorValue = finchRobot.getLeftLightSensor();
+            int currentRightSensorValue = finchRobot.getRightLightSensor();
+
+            do
+            {
+                validResponse = true;
+                DisplayScreenHeader("Threshold Value");
+
+                //
+                // Display ambient light values
+                //
+                switch (sensorsToMonitor)
+                {
+                    case "left":
+                        Console.WriteLine($"\tCurrent {sensorsToMonitor} Sensor Value: {currentLeftSensorValue}");
+                        break;
+
+                    case "right":
+                        Console.WriteLine($"\tCurrent {sensorsToMonitor} Sensor Value: {currentRightSensorValue}");
+                        break;
+
+                    case "both":
+                        Console.WriteLine($"\tCurrent Left Sensor Value: {currentLeftSensorValue}");
+                        Console.WriteLine($"\tCurrent Right Sensor Value: {currentRightSensorValue}");
+                        break;
+
+                    default:
+                        Console.WriteLine("\tUnknown Sensor Reference. Please Return to Alarm System Manu.");
+                        validSensorReference = false;
+                        break;
+                }
+                Console.WriteLine();
+
+                //
+                // Did they enter a range type
+                //
+                if (rangeType != "minimum" && rangeType != "maximum")
+                {
+                    validRangeType = false;
+                }
+
+                //
+                // If user entered sensor reference, ask for threshold
+                //
+                if (validSensorReference)
+                {
+                    //
+                    // If user entered range type, ask for threshold
+                    //
+                    if (validRangeType)
+                    {
+                        //
+                        // get threshold from user
+                        //
+                        Console.Write("\tEnter Threshold:");
+                        userResponse = Console.ReadLine();
+
+                        if (rangeType == "minimum")
+                        {
+                            switch (sensorsToMonitor)
+                            {
+                                case "left":
+                                    //
+                                    // validate if threshold is less then left light sensor and between 0 and 255
+                                    //
+                                    if (int.TryParse(userResponse, out thresholdValue) && thresholdValue >= currentLeftSensorValue)
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Threshold Less then Current Light Sensors [Range Type Entered: Minimum]");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (!int.TryParse(userResponse, out thresholdValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue < 0 || thresholdValue > 255))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        int.TryParse(userResponse, out thresholdValue);
+                                    }
+                                    break;
+
+                                case "right":
+                                    //
+                                    // validate if threshold is less then right light sensor and between 0 and 255
+                                    //
+                                    if (int.TryParse(userResponse, out thresholdValue) && thresholdValue >= currentRightSensorValue)
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Threshold Less then Current Light Sensors [Range Type Entered: Minimum]");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (!int.TryParse(userResponse, out thresholdValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue < 0 || thresholdValue > 255))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        int.TryParse(userResponse, out thresholdValue);
+                                    }
+                                    break;
+
+                                case "both":
+                                    //
+                                    // validate if threshold is less then both light sensor and between 0 and 255
+                                    //
+                                    if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue >= currentLeftSensorValue || thresholdValue >= currentRightSensorValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Threshold Less then Current Light Sensors [Range Type Entered: Minimum]");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (!int.TryParse(userResponse, out thresholdValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue < 0 || thresholdValue > 255))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        int.TryParse(userResponse, out thresholdValue);
+                                    }
+                                    break;
+
+                                default:
+
+                                    break;
+                            }
+                        }
+                        else if (rangeType == "maximum")
+                        {
+                            switch (sensorsToMonitor)
+                            {
+                                case "left":
+                                    //
+                                    // validate if threshold is higher then left light sensor and between 0 and 255
+                                    //
+                                    if (int.TryParse(userResponse, out thresholdValue) && thresholdValue <= currentLeftSensorValue)
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Threshold Higher then Current Light Sensors [Range Type Entered: Maximum]");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (!int.TryParse(userResponse, out thresholdValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue < 0 || thresholdValue > 255))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        int.TryParse(userResponse, out thresholdValue);
+                                    }
+                                    break;
+
+                                case "right":
+                                    //
+                                    // validate if threshold is higher then right light sensor and between 0 and 255
+                                    //
+                                    if (int.TryParse(userResponse, out thresholdValue) && thresholdValue <= currentRightSensorValue)
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Threshold Higher then Current Light Sensors [Range Type Entered: Maximum]");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (!int.TryParse(userResponse, out thresholdValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue < 0 || thresholdValue > 255))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        int.TryParse(userResponse, out thresholdValue);
+                                    }
+                                    break;
+
+                                case "both":
+                                    //
+                                    // validate if threshold is higher then both light sensor and between 0 and 255
+                                    //
+                                    if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue <= currentLeftSensorValue || thresholdValue <= currentRightSensorValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Threshold Higher then Current Light Sensors [Range Type Entered: Maximum]");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (!int.TryParse(userResponse, out thresholdValue))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else if (int.TryParse(userResponse, out thresholdValue) && (thresholdValue < 0 || thresholdValue > 255))
+                                    {
+                                        Console.WriteLine("\tPlease Enter a Number from 0 to 255.");
+                                        validResponse = false;
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        int.TryParse(userResponse, out thresholdValue);
+                                    }
+                                    break;
+
+                                default:
+
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("\tYou Didn't Enter a Range Type. Go to Alarm System Menu.");
+                    }
+                }
+            } while (!validResponse);
+
+            //
+            // Display threshold value if there is a sensor reference and range type
+            //
+            if (validRangeType && validSensorReference)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"\tThreshold Entered: {thresholdValue}");
+            }
+            DisplayMenuPrompt("Alarm System");
+
+            return thresholdValue;
+        }
+
+        /// <summary>
+        /// Get range type from user
+        /// </summary>
+        /// <returns>rangeType</returns>
+        static string AlarmSystemDisplaySetRangeType()
+        {
+            string rangeType = "";
+            bool validResponse;
+
+            do
+            {
+                DisplayScreenHeader("Range Type");
+
+                Console.Write("\tEnter Range Type [minimum, maximum]:");
+                rangeType = Console.ReadLine().ToLower();
+
+                if (rangeType == "minimum" || rangeType == "maximum")
+                {
+                    validResponse = true;
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease Enter a Range Type [minimum, maximum]. ");
+                    validResponse = false;
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            } while (!validResponse);
+
+            Console.WriteLine();
+            Console.WriteLine($"\tSenors to Monitor Entered: {rangeType}");
+
+            DisplayMenuPrompt("Alarm System");
+
+            return rangeType;
+        }
+
+        /// <summary>
+        /// Get Monitor to sensor from user
+        /// </summary>
+        /// <returns>sensorsToMonitor</returns>
+        static string AlarmSystemDisplaySetSensors()
+        {
+            string sensorsToMonitor = "";
+            bool validResponse;
+
+            do
+            {
+                DisplayScreenHeader("Sensors to Monitor");
+
+                Console.Write("\tEnter Sensors to Monitor [left, right, both]:");
+                sensorsToMonitor = Console.ReadLine().ToLower();
+
+                if (sensorsToMonitor == "left" || sensorsToMonitor == "right" || sensorsToMonitor == "both")
+                {
+                    validResponse = true;
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\tPlease Enter Sensors to Monitor [left, right, both]. ");
+                    validResponse = false;
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            } while (!validResponse);
+
+            Console.WriteLine();
+            Console.WriteLine($"\tSenors to Monitor Entered: {sensorsToMonitor}");
+
+            DisplayMenuPrompt("Alarm System");
+
+            return sensorsToMonitor;
+        }
+
+        #endregion
 
         #region DATA RECORDER
 
