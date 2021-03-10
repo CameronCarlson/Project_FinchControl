@@ -14,10 +14,24 @@ namespace Project_FinchControl
     // Application Type: Console
     // Author: Cameron Carlson
     // Dated Created: 2/17/2021
-    // Last Modified: 3/8/2021
+    // Last Modified: 3/10/2021
     //
     // ****************************************************************************************************
 
+    public enum Command
+    {
+            NONE,
+            MOVEFORWARD,
+            MOVEBACKWARD,
+            STOPMOTOR,
+            WAIT,
+            TURNRIGHT,
+            TURNLEFT,
+            LEDON,
+            LEDOFF,
+            GETTEMPERATURE,
+            DONE
+    }
     class Program
     {
         /// <summary>
@@ -95,7 +109,7 @@ namespace Project_FinchControl
                         break;
 
                     case "e":
-
+                        UserPrrogrammingDisplayMenuScreen(finchRobot);
                         break;
 
                     case "f":
@@ -116,6 +130,154 @@ namespace Project_FinchControl
 
             } while (!quitApplication);
         }
+
+        #region USER PROGRAMMING
+
+        static void UserPrrogrammingDisplayMenuScreen(Finch finchRobot)
+        {
+            bool quitMenu = false;
+            string menuChoice;
+
+            (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters;
+            List<Command> commands = null;
+
+            do
+            {
+                DisplayScreenHeader("User Programming Menu");
+
+                //
+                // get user menu choice
+                //
+                Console.WriteLine("\ta) Set Command Parameters");
+                Console.WriteLine("\tb) Add Commands");
+                Console.WriteLine("\tc) View Commands");
+                Console.WriteLine("\td) Execute Commands");
+                Console.WriteLine("\te) Main Menu");
+                Console.Write("\t\tEnter Choice:");
+                menuChoice = Console.ReadLine().ToLower();
+
+                //
+                // process user menu choice
+                //
+                switch (menuChoice)
+                {
+                    case "a":
+                        commandParameters = UserProgrammingDisplayGetCommandParameters();
+                        break;
+                    case "b":
+                        commands = UserProgrammingDisplayGetFinchCommands();
+                        break;
+
+                    case "c":
+                        UserProgrammingDisplayViewCommands(commands);
+                        break;
+
+                    case "d":
+                        
+                        break;
+
+                    case "e":
+                        quitMenu = true;
+                        break;
+
+                    default:
+                        Console.WriteLine();
+                        Console.WriteLine("\tPlease enter a letter for the menu choice.");
+                        DisplayContinuePrompt();
+                        break;
+                }
+            } while (!quitMenu);
+        }
+
+        /// <summary>
+        /// Display Commands Entered by user
+        /// </summary>
+        /// <param name="commands"></param>
+        static void UserProgrammingDisplayViewCommands(List<Command> commands)
+        {
+            DisplayScreenHeader("View Commands");
+
+            Console.WriteLine("\tCommand List");
+            foreach (Command command in commands)
+            {
+                Console.WriteLine($"\t{command}");
+            }
+
+            DisplayMenuPrompt("User Programming");
+        }
+
+        static List<Command> UserProgrammingDisplayGetFinchCommands()
+        {
+            List<Command> commands = new List<Command>();
+            bool isDone = false;
+            string userResponse;
+            Command command;
+
+            DisplayScreenHeader("Get Finch Commands");
+
+            Console.Write("\t Enter Commands [ | ");
+            foreach (string commandName in Enum.GetNames(typeof(Command)))
+            {
+                Console.Write($"{commandName} | ");
+            }
+            Console.WriteLine("]");
+            Console.WriteLine("\tType \"done\" when finished");
+            Console.WriteLine();
+
+            do
+            {
+                Console.Write("\tCommand:");
+                userResponse = Console.ReadLine();
+                if (userResponse != "done")
+                {
+                    if (Enum.TryParse(userResponse.ToUpper(), out command))
+                    {
+                        commands.Add(command);
+                    }
+                    else
+                    {
+                        Console.WriteLine("\t\tCommand Unkown. Enter Command From The Listed Above.");
+                    }
+                }
+                else
+                {
+                    isDone = true;
+                }
+            } while (!isDone);
+
+
+
+            DisplayMenuPrompt("User Programming");
+
+            return commands;
+        }
+
+        // Need to validate speed, brightness, and wait time
+        /// <summary>
+        /// Get parameters from user
+        /// </summary>
+        /// <returns>commandParameters</returns>
+        static (int motorSpeed, int ledBrightness, double waitSeconds) UserProgrammingDisplayGetCommandParameters()
+        {
+            (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters;
+
+            DisplayScreenHeader("Get Parameters");
+
+            Console.Write("\tMotor Spreed:");
+            commandParameters.motorSpeed = int.Parse(Console.ReadLine());                                               //Validate
+
+            Console.Write("\tLED Brightness:");
+            commandParameters.ledBrightness = int.Parse(Console.ReadLine());                                            //Validate
+
+            Console.Write("\tWait Time (Seconds):");
+            commandParameters.waitSeconds = double.Parse(Console.ReadLine());                                           //Validate
+
+            DisplayMenuPrompt("User Programming");
+
+            return commandParameters;
+        }
+
+        #endregion
 
         #region ALARM SYSTEM
 
