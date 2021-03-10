@@ -23,7 +23,7 @@ namespace Project_FinchControl
             NONE,
             MOVEFORWARD,
             MOVEBACKWARD,
-            STOPMOTOR,
+            STOPMOTORs,
             WAIT,
             TURNRIGHT,
             TURNLEFT,
@@ -198,6 +198,7 @@ namespace Project_FinchControl
             DisplayScreenHeader("View Commands");
 
             Console.WriteLine("\tCommand List");
+            Console.WriteLine("\t------------");
             foreach (Command command in commands)
             {
                 Console.WriteLine($"\t{command}");
@@ -206,6 +207,10 @@ namespace Project_FinchControl
             DisplayMenuPrompt("User Programming");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         static List<Command> UserProgrammingDisplayGetFinchCommands()
         {
             List<Command> commands = new List<Command>();
