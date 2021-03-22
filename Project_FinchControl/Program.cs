@@ -30,6 +30,10 @@ namespace Project_FinchControl
             LEDON,
             LEDOFF,
             GETTEMPERATURE,
+            GETLEFTLIGHTLEVEL,
+            GETRIGHTLIGHTLEVEL,
+            GETALLSENSORSVALUES,
+            DANCE,
             DONE
     }
     class Program
@@ -204,6 +208,9 @@ namespace Project_FinchControl
             int ledBrightness = commandParameters.ledBrightness;
             double waitSeconds = commandParameters.waitSeconds;
             double temperatureSensorValue;
+            int leftLightLevel;
+            int rightLightLevel;
+            int waitMilliseconds = (int)(waitSeconds * 1000);
 
             Console.WriteLine("\tThe Finch Robot will now execute all commands.");
             DisplayContinuePrompt();
@@ -232,7 +239,6 @@ namespace Project_FinchControl
                         break;
 
                     case Command.WAIT:
-                        int waitMilliseconds = (int)(waitSeconds * 1000);
                         finchRobot.wait(waitMilliseconds);
                         break;
 
@@ -257,6 +263,36 @@ namespace Project_FinchControl
                         Console.WriteLine($"\t\tCurrent Temperature:{temperatureSensorValue}°C");
                         break;
 
+                    case Command.GETLEFTLIGHTLEVEL:
+                        leftLightLevel = finchRobot.getLeftLightSensor();
+                        Console.WriteLine($"\t\tCurrent Left Light Sensor:{leftLightLevel}");
+                        break;
+
+                    case Command.GETRIGHTLIGHTLEVEL:
+                        rightLightLevel = finchRobot.getRightLightSensor();
+                        Console.WriteLine($"\t\tCurrent Right Light Sensor:{rightLightLevel}");
+                        break;
+
+                    case Command.GETALLSENSORSVALUES:
+                        temperatureSensorValue = finchRobot.getTemperature();
+                        Console.WriteLine($"\t\tCurrent Temperature:{temperatureSensorValue}°C");
+
+                        leftLightLevel = finchRobot.getLeftLightSensor();
+                        Console.WriteLine($"\t\tCurrent Left Light Sensor:{leftLightLevel}");
+
+                        rightLightLevel = finchRobot.getRightLightSensor();
+                        Console.WriteLine($"\t\tCurrent Right Light Sensor:{rightLightLevel}");
+                        break;
+
+                    case Command.DANCE:
+                        finchRobot.setMotors(commandParameters.motorSpeed, 0);
+                        UserProgrammingDisplayFlashLightsAndSound(commandParameters, finchRobot);
+                        finchRobot.setMotors(0, commandParameters.motorSpeed);
+                        UserProgrammingDisplayFlashLightsAndSound(commandParameters, finchRobot);
+                        finchRobot.setMotors(0, 0);
+                        finchRobot.setLED(0, 0, 0);
+                        break;
+
                     case Command.DONE:
 
                         break;
@@ -274,6 +310,30 @@ namespace Project_FinchControl
             finchRobot.setMotors(0, 0);
 
             DisplayMenuPrompt("User Programming");
+        }
+
+        /// <summary>
+        /// Flash lights and sound for dance in user programming
+        /// </summary>
+        /// <param name="commandParameters"></param>
+        /// <param name="finchRobot"></param>
+        static void UserProgrammingDisplayFlashLightsAndSound((int motorSpeed, int ledBrightness, double waitSeconds) commandParameters, Finch finchRobot)
+        {
+            int motorSpeed = commandParameters.motorSpeed;
+            int ledBrightness = commandParameters.ledBrightness;
+            double waitSeconds = commandParameters.waitSeconds;
+            int waitMilliseconds = (int)(waitSeconds * 1000);
+
+            for (int i = 0; i < 2; i++)
+            {
+                finchRobot.setLED(commandParameters.ledBrightness, commandParameters.ledBrightness, commandParameters.ledBrightness);
+                finchRobot.noteOn(5000);
+                finchRobot.wait((int)(.25 * waitMilliseconds));
+
+                finchRobot.setLED(0, 0, 0);
+                finchRobot.noteOff();
+                finchRobot.wait((int)(.25 * waitMilliseconds));
+            }
         }
 
         /// <summary>
