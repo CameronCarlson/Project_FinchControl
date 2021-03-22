@@ -337,7 +337,6 @@ namespace Project_FinchControl
             return commands;
         }
 
-        // Need to validate speed, brightness, and wait time
         /// <summary>
         /// Get parameters from user
         /// </summary>
@@ -361,9 +360,11 @@ namespace Project_FinchControl
                 else
                 {
                     Console.WriteLine("\tPlease Enter a Valid Number [-255 to 255]");
+                    Console.WriteLine();
                     validResponse = false;
                 }
             } while (!validResponse);
+            Console.WriteLine();
 
             do
             {
@@ -377,9 +378,11 @@ namespace Project_FinchControl
                 else
                 {
                     Console.WriteLine("\tPlease Enter a Valid Number [0 to 255]");
+                    Console.WriteLine();
                     validResponse = false;
                 }
             } while (!validResponse);
+            Console.WriteLine();
 
             do
             {
@@ -393,9 +396,20 @@ namespace Project_FinchControl
                 else
                 {
                     Console.WriteLine("\tPlease Enter a Valid Positive Number");
+                    Console.WriteLine();
                     validResponse = false;
                 }
             } while (!validResponse);
+
+            //
+            // Echo command parameters
+            //
+            Console.WriteLine();
+            Console.WriteLine("\t\tParameters Entered");
+            Console.WriteLine();
+            Console.WriteLine($"\tMotor Speed:{commandParameters.motorSpeed}");
+            Console.WriteLine($"\tLED Brightness:{commandParameters.ledBrightness}");
+            Console.WriteLine($"\tWait Time (Seconds):{commandParameters.waitSeconds}");
 
             DisplayMenuPrompt("User Programming");
 
