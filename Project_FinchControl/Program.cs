@@ -23,7 +23,7 @@ namespace Project_FinchControl
             NONE,
             MOVEFORWARD,
             MOVEBACKWARD,
-            STOPMOTORs,
+            STOPMOTORS,
             WAIT,
             TURNRIGHT,
             TURNLEFT,
@@ -138,8 +138,9 @@ namespace Project_FinchControl
             bool quitMenu = false;
             string menuChoice;
 
-            (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters;
+            (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters = (0, 0, 0);
             List<Command> commands = null;
+            
 
             do
             {
@@ -173,7 +174,7 @@ namespace Project_FinchControl
                         break;
 
                     case "d":
-                        
+                        UserProgrammingDisplayExecuteCommands(finchRobot, commands, commandParameters);
                         break;
 
                     case "e":
@@ -187,6 +188,87 @@ namespace Project_FinchControl
                         break;
                 }
             } while (!quitMenu);
+        }
+
+        /// <summary>
+        /// Exexute Commands Given by User
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        /// <param name="commands"></param>
+        /// <param name="commandParameters"></param>
+        static void UserProgrammingDisplayExecuteCommands(Finch finchRobot, List<Command> commands, (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters)
+        {
+            DisplayScreenHeader("Exexute Commands");
+            int motorSpeed = commandParameters.motorSpeed;
+            int ledBrightness = commandParameters.ledBrightness;
+            double waitSeconds = commandParameters.waitSeconds;
+
+            Console.WriteLine("\tThe Finch Robot will now execute all commands.");
+            DisplayContinuePrompt();
+
+            foreach (Command command in commands)
+            {
+                switch (command)
+                {
+                    case Command.NONE:
+                        Console.WriteLine();
+                        Console.WriteLine("\tDefault Value Error");
+                        Console.WriteLine();
+                        break;
+
+                    case Command.MOVEFORWARD:
+                        finchRobot.setMotors(motorSpeed, motorSpeed);
+                        break;
+
+                    case Command.MOVEBACKWARD:
+                        finchRobot.setMotors(-motorSpeed, -motorSpeed);
+
+                        break;
+
+                    case Command.STOPMOTORS:
+                        finchRobot.setMotors(0, 0);
+                        break;
+
+                    case Command.WAIT:
+                        int waitMilliseconds = (int)(waitSeconds * 1000);
+                        finchRobot.wait(waitMilliseconds);
+                        break;
+
+                    case Command.TURNRIGHT:
+
+                        break;
+
+                    case Command.TURNLEFT:
+
+                        break;
+
+                    case Command.LEDON:
+
+                        break;
+
+                    case Command.LEDOFF:
+
+                        break;
+
+                    case Command.GETTEMPERATURE:
+
+                        break;
+
+                    case Command.DONE:
+
+                        break;
+
+                    default:
+                        Console.WriteLine();
+                        Console.WriteLine("\tUnkown Command Error");
+                        Console.WriteLine();
+                        break;
+                }
+
+                Console.WriteLine($"\tCommand: {command}");
+            }
+
+            DisplayMenuPrompt("User Programming");
         }
 
         /// <summary>
@@ -250,8 +332,6 @@ namespace Project_FinchControl
                 }
             } while (!isDone);
 
-
-
             DisplayMenuPrompt("User Programming");
 
             return commands;
@@ -264,18 +344,58 @@ namespace Project_FinchControl
         /// <returns>commandParameters</returns>
         static (int motorSpeed, int ledBrightness, double waitSeconds) UserProgrammingDisplayGetCommandParameters()
         {
+            bool validResponse;
+            string userResponse;
             (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters;
-
+            
             DisplayScreenHeader("Get Parameters");
+            do
+            {
+                validResponse = true;
+                Console.Write("\tMotor Spreed [-255 to 255]:");
+                userResponse = Console.ReadLine();
+                if (int.TryParse(userResponse, out commandParameters.motorSpeed) && commandParameters.motorSpeed >= -255 && commandParameters.motorSpeed <= 255)
+                {
 
-            Console.Write("\tMotor Spreed:");
-            commandParameters.motorSpeed = int.Parse(Console.ReadLine());                                               //Validate
+                }
+                else
+                {
+                    Console.WriteLine("\tPlease Enter a Valid Number [-255 to 255]");
+                    validResponse = false;
+                }
+            } while (!validResponse);
 
-            Console.Write("\tLED Brightness:");
-            commandParameters.ledBrightness = int.Parse(Console.ReadLine());                                            //Validate
+            do
+            {
+                validResponse = true;
+                Console.Write("\tLED Brightness [0 to 255]:");
+                userResponse = Console.ReadLine();
+                if (int.TryParse(userResponse, out commandParameters.ledBrightness) && commandParameters.ledBrightness >= 0 && commandParameters.ledBrightness <= 255)
+                {
 
-            Console.Write("\tWait Time (Seconds):");
-            commandParameters.waitSeconds = double.Parse(Console.ReadLine());                                           //Validate
+                }
+                else
+                {
+                    Console.WriteLine("\tPlease Enter a Valid Number [0 to 255]");
+                    validResponse = false;
+                }
+            } while (!validResponse);
+
+            do
+            {
+                validResponse = true;
+                Console.Write("\tWait Time (Seconds):");
+                userResponse = Console.ReadLine();
+                if (double.TryParse(userResponse, out commandParameters.waitSeconds) && commandParameters.waitSeconds >= 0)
+                {
+
+                }
+                else
+                {
+                    Console.WriteLine("\tPlease Enter a Valid Positive Number");
+                    validResponse = false;
+                }
+            } while (!validResponse);
 
             DisplayMenuPrompt("User Programming");
 
