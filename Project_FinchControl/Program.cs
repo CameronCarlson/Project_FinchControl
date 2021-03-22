@@ -30,9 +30,9 @@ namespace Project_FinchControl
             LEDON,
             LEDOFF,
             GETTEMPERATURE,
-            GETLEFTLIGHTLEVEL,
-            GETRIGHTLIGHTLEVEL,
-            GETALLSENSORSVALUES,
+            GETLEFTLIGHTSENSOR,
+            GETRIGHTLIGHTSENSOR,
+            GETALLSENSORVALUES,
             DANCE,
             DONE
     }
@@ -263,17 +263,17 @@ namespace Project_FinchControl
                         Console.WriteLine($"\t\tCurrent Temperature:{temperatureSensorValue}°C");
                         break;
 
-                    case Command.GETLEFTLIGHTLEVEL:
+                    case Command.GETLEFTLIGHTSENSOR:
                         leftLightLevel = finchRobot.getLeftLightSensor();
                         Console.WriteLine($"\t\tCurrent Left Light Sensor:{leftLightLevel}");
                         break;
 
-                    case Command.GETRIGHTLIGHTLEVEL:
+                    case Command.GETRIGHTLIGHTSENSOR:
                         rightLightLevel = finchRobot.getRightLightSensor();
                         Console.WriteLine($"\t\tCurrent Right Light Sensor:{rightLightLevel}");
                         break;
 
-                    case Command.GETALLSENSORSVALUES:
+                    case Command.GETALLSENSORVALUES:
                         temperatureSensorValue = finchRobot.getTemperature();
                         Console.WriteLine($"\t\tCurrent Temperature:{temperatureSensorValue}°C");
 
@@ -285,9 +285,9 @@ namespace Project_FinchControl
                         break;
 
                     case Command.DANCE:
-                        finchRobot.setMotors(commandParameters.motorSpeed, 0);
+                        finchRobot.setMotors(commandParameters.motorSpeed, -1 * commandParameters.motorSpeed);
                         UserProgrammingDisplayFlashLightsAndSound(commandParameters, finchRobot);
-                        finchRobot.setMotors(0, commandParameters.motorSpeed);
+                        finchRobot.setMotors(-1 * commandParameters.motorSpeed, commandParameters.motorSpeed);
                         UserProgrammingDisplayFlashLightsAndSound(commandParameters, finchRobot);
                         finchRobot.setMotors(0, 0);
                         finchRobot.setLED(0, 0, 0);
@@ -324,10 +324,10 @@ namespace Project_FinchControl
             double waitSeconds = commandParameters.waitSeconds;
             int waitMilliseconds = (int)(waitSeconds * 1000);
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 4; i++)
             {
                 finchRobot.setLED(commandParameters.ledBrightness, commandParameters.ledBrightness, commandParameters.ledBrightness);
-                finchRobot.noteOn(5000);
+                finchRobot.noteOn(10000);
                 finchRobot.wait((int)(.25 * waitMilliseconds));
 
                 finchRobot.setLED(0, 0, 0);
@@ -360,6 +360,7 @@ namespace Project_FinchControl
         /// <returns></returns>
         static List<Command> UserProgrammingDisplayGetFinchCommands()
         {
+            Console.SetWindowSize(220, 40);
             List<Command> commands = new List<Command>();
             bool isDone = false;
             string userResponse;
@@ -398,8 +399,9 @@ namespace Project_FinchControl
             } while (!isDone);
 
             DisplayMenuPrompt("User Programming");
-
+            Console.SetWindowSize(150, 40);
             return commands;
+            
         }
 
         /// <summary>
