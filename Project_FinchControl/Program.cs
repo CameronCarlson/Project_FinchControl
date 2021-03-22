@@ -254,7 +254,7 @@ namespace Project_FinchControl
 
                     case Command.GETTEMPERATURE:
                         temperatureSensorValue = finchRobot.getTemperature();
-                        Console.WriteLine($"\tCurrent Temperature:{temperatureSensorValue}°C");
+                        Console.WriteLine($"\t\tCurrent Temperature:{temperatureSensorValue}°C");
                         break;
 
                     case Command.DONE:
@@ -270,6 +270,8 @@ namespace Project_FinchControl
 
                 Console.WriteLine($"\tCommand: {command}");
             }
+            finchRobot.setLED(0, 0, 0);
+            finchRobot.setMotors(0, 0);
 
             DisplayMenuPrompt("User Programming");
         }
@@ -354,9 +356,9 @@ namespace Project_FinchControl
             do
             {
                 validResponse = true;
-                Console.Write("\tMotor Spreed [-255 to 255]:");
+                Console.Write("\tMotor Spreed [0 to 255]:");
                 userResponse = Console.ReadLine();
-                if (int.TryParse(userResponse, out commandParameters.motorSpeed) && commandParameters.motorSpeed >= -255 && commandParameters.motorSpeed <= 255)
+                if (int.TryParse(userResponse, out commandParameters.motorSpeed) && commandParameters.motorSpeed >= 0 && commandParameters.motorSpeed <= 255)
                 {
 
                 }
