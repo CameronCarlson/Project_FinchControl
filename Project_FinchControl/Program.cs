@@ -138,6 +138,10 @@ namespace Project_FinchControl
 
         #region USER PROGRAMMING
 
+        /// <summary>
+        /// User Programming Main Menu
+        /// </summary>
+        /// <param name="finchRobot"></param>
         static void UserPrrogrammingDisplayMenuScreen(Finch finchRobot)
         {
             bool quitMenu = false;
@@ -426,7 +430,7 @@ namespace Project_FinchControl
                 }
                 else
                 {
-                    Console.WriteLine("\tPlease Enter a Valid Number [-255 to 255]");
+                    Console.WriteLine("\tPlease Enter a Valid Number [0 to 255]");
                     Console.WriteLine();
                     validResponse = false;
                 }
