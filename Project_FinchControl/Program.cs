@@ -20,7 +20,7 @@ namespace Project_FinchControl
 
     public enum Command
     {
-            NONE,
+            //NONE,
             MOVEFORWARD,
             MOVEBACKWARD,
             STOPMOTORS,
@@ -54,6 +54,7 @@ namespace Project_FinchControl
         {
             Console.ForegroundColor = ConsoleColor.DarkBlue;
             Console.BackgroundColor = ConsoleColor.White;
+            Console.SetWindowSize(150, 40);
         }
 
         /// <summary>
@@ -202,6 +203,7 @@ namespace Project_FinchControl
             int motorSpeed = commandParameters.motorSpeed;
             int ledBrightness = commandParameters.ledBrightness;
             double waitSeconds = commandParameters.waitSeconds;
+            double temperatureSensorValue;
 
             Console.WriteLine("\tThe Finch Robot will now execute all commands.");
             DisplayContinuePrompt();
@@ -210,11 +212,11 @@ namespace Project_FinchControl
             {
                 switch (command)
                 {
-                    case Command.NONE:
-                        Console.WriteLine();
-                        Console.WriteLine("\tDefault Value Error");
-                        Console.WriteLine();
-                        break;
+                    //case Command.NONE:
+                    //    Console.WriteLine();
+                    //    Console.WriteLine("\tDefault Value Error");
+                    //    Console.WriteLine();
+                    //    break;
 
                     case Command.MOVEFORWARD:
                         finchRobot.setMotors(motorSpeed, motorSpeed);
@@ -235,23 +237,24 @@ namespace Project_FinchControl
                         break;
 
                     case Command.TURNRIGHT:
-
+                        finchRobot.setMotors(commandParameters.motorSpeed, 0);
                         break;
 
                     case Command.TURNLEFT:
-
+                        finchRobot.setMotors(0, commandParameters.motorSpeed);
                         break;
 
                     case Command.LEDON:
-
+                        finchRobot.setLED(commandParameters.ledBrightness, commandParameters.ledBrightness, commandParameters.ledBrightness);
                         break;
 
                     case Command.LEDOFF:
-
+                        finchRobot.setLED(0, 0, 0);
                         break;
 
                     case Command.GETTEMPERATURE:
-
+                        temperatureSensorValue = finchRobot.getTemperature();
+                        Console.WriteLine($"\tCurrent Temperature:{temperatureSensorValue}°C");
                         break;
 
                     case Command.DONE:
@@ -302,7 +305,7 @@ namespace Project_FinchControl
 
             DisplayScreenHeader("Get Finch Commands");
 
-            Console.Write("\t Enter Commands [ | ");
+            Console.Write("\tEnter Commands [ | ");
             foreach (string commandName in Enum.GetNames(typeof(Command)))
             {
                 Console.Write($"{commandName} | ");
@@ -404,6 +407,7 @@ namespace Project_FinchControl
             //
             // Echo command parameters
             //
+            Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("\t\tParameters Entered");
             Console.WriteLine();
