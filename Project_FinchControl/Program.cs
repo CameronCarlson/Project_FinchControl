@@ -7,16 +7,16 @@ using FinchAPI;
 namespace Project_FinchControl
 {
 
-    // ****************************************************************************************************
-    //
-    // Title: Finch Control
-    // Description: Mission 3 code to control the finch robot
-    // Application Type: Console
-    // Author: Cameron Carlson
-    // Dated Created: 2/17/2021
-    // Last Modified: 3/22/2021
-    //
-    // ****************************************************************************************************
+    // ******************************************************************************************************
+    //                                                                                                      *
+    // Title: Finch Control                                                                                 *
+    // Description: Mission 3 code to control the finch robot                                               *
+    // Application Type: Console                                                                            *
+    // Author: Cameron Carlson                                                                              *
+    // Dated Created: 2/17/2021                                                                             *
+    // Last Modified: 3/22/2021                                                                             *
+    //                                                                                                      *
+    // ******************************************************************************************************
 
     public enum Command
     {
@@ -162,7 +162,9 @@ namespace Project_FinchControl
                 Console.WriteLine("\tb) Add Commands");
                 Console.WriteLine("\tc) View Commands");
                 Console.WriteLine("\td) Execute Commands");
-                Console.WriteLine("\te) Main Menu");
+                Console.WriteLine("\te) View Previous Program Commands");
+                Console.WriteLine("\tf) Execute Previous Program Commands");
+                Console.WriteLine("\tg) Main Menu");
                 Console.Write("\t\tEnter Choice:");
                 menuChoice = Console.ReadLine().ToLower();
 
@@ -187,6 +189,14 @@ namespace Project_FinchControl
                         break;
 
                     case "e":
+                        UserProgrammingDisplayViewPreviousProgramCommands();
+                        break;
+
+                    case "f":
+                        UserProgrammingDisplayExecutePreviousProgramCommands(finchRobot, commandParameters);
+                        break;
+
+                    case "g":
                         quitMenu = true;
                         break;
 
@@ -197,6 +207,25 @@ namespace Project_FinchControl
                         break;
                 }
             } while (!quitMenu);
+        }
+
+        static void UserProgrammingDisplayExecutePreviousProgramCommands(Finch finchRobot, (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        static void UserProgrammingDisplayViewPreviousProgramCommands()
+        {
+            string previousProgram = @"UserProgrammingPreviousProgram\UserProgrammingPreviousProgram.txt";
+
+            DisplayScreenHeader("View Commands");
+
+            Console.WriteLine("\tCommand List");
+            Console.WriteLine("\t------------");
+
+            File.Read(previousProgram);
+
+            DisplayMenuPrompt("User Programming");
         }
 
         /// <summary>
@@ -364,6 +393,8 @@ namespace Project_FinchControl
         /// <returns></returns>
         static List<Command> UserProgrammingDisplayGetFinchCommands()
         {
+            string previousProgram = @"UserProgrammingPreviousProgram\UserProgrammingPreviousProgram.txt";
+
             Console.SetWindowSize(220, 40);
             List<Command> commands = new List<Command>();
             bool isDone = false;
@@ -384,10 +415,10 @@ namespace Project_FinchControl
             do
             {
                 Console.Write("\tCommand:");
-                userResponse = Console.ReadLine();
-                if (userResponse != "done")
+                userResponse = Console.ReadLine().ToUpper();
+                if (userResponse != "DONE")
                 {
-                    if (Enum.TryParse(userResponse.ToUpper(), out command))
+                    if (Enum.TryParse(userResponse, out command))
                     {
                         commands.Add(command);
                     }
@@ -404,6 +435,27 @@ namespace Project_FinchControl
 
             DisplayMenuPrompt("User Programming");
             Console.SetWindowSize(150, 40);
+
+            //
+            // Convert list to enum array
+            //
+            Command[] previousProgramEnumArray = new Command[commands.Count];
+            string[] previousProgramStringArray = new string[commands.Count];
+            previousProgramEnumArray = commands.ToArray();
+
+            //
+            // Convert enum array to string array
+            //
+            for (int index = 0; index < previousProgramEnumArray.Length; index++)
+            {
+                previousProgramStringArray[index] = previousProgramEnumArray[index].ToString();
+            }
+
+            //
+            // save string array to text file
+            //
+            File.WriteAllLines(previousProgram, previousProgramStringArray);
+
             return commands;
             
         }
