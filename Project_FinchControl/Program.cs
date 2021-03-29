@@ -209,21 +209,156 @@ namespace Project_FinchControl
             } while (!quitMenu);
         }
 
+        /// <summary>
+        /// Exicute commands for previous user program
+        /// </summary>
+        /// <param name="finchRobot"></param>
+        /// <param name="commandParameters"></param>
         static void UserProgrammingDisplayExecutePreviousProgramCommands(Finch finchRobot, (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters)
         {
-            throw new NotImplementedException();
+            DisplayScreenHeader("Exexute Previous Program Commands");
+            int motorSpeed = commandParameters.motorSpeed;
+            int ledBrightness = commandParameters.ledBrightness;
+            double waitSeconds = commandParameters.waitSeconds;
+            double temperatureSensorValue;
+            int leftLightLevel;
+            int rightLightLevel;
+            int waitMilliseconds = (int)(waitSeconds * 1000);
+            string previousProgram = @"UserProgrammingPreviousProgram\UserProgrammingPreviousProgram.txt";
+            string[] previousProgramStringArray = File.ReadAllLines(previousProgram);
+            Command[] previousProgramEnumArray = new Command[previousProgramStringArray.Length];
+            List<Command> commands = null;
+            Command enumCommand;
+
+            Console.WriteLine("\tThe Finch Robot will now execute all commands.");
+            DisplayContinuePrompt();
+
+            foreach (string stringCommand in previousProgramStringArray)
+            {
+                if (Enum.TryParse(stringCommand, out enumCommand))
+                {
+                    commands.Add(enumCommand);
+                }
+                else
+                {
+                    Console.WriteLine("\t\tPrevious Program Contains Unkown Command.");
+                }
+            }
+
+            foreach (Command command in commands)
+            {
+                switch (command)
+                {
+                    //case Command.NONE:
+                    //    Console.WriteLine();
+                    //    Console.WriteLine("\tDefault Value Error");
+                    //    Console.WriteLine();
+                    //    break;
+
+                    case Command.MOVEFORWARD:
+                        finchRobot.setMotors(motorSpeed, motorSpeed);
+                        break;
+
+                    case Command.MOVEBACKWARD:
+                        finchRobot.setMotors(-motorSpeed, -motorSpeed);
+
+                        break;
+
+                    case Command.STOPMOTORS:
+                        finchRobot.setMotors(0, 0);
+                        break;
+
+                    case Command.WAIT:
+                        finchRobot.wait(waitMilliseconds);
+                        break;
+
+                    case Command.TURNRIGHT:
+                        finchRobot.setMotors(commandParameters.motorSpeed, 0);
+                        break;
+
+                    case Command.TURNLEFT:
+                        finchRobot.setMotors(0, commandParameters.motorSpeed);
+                        break;
+
+                    case Command.LEDON:
+                        finchRobot.setLED(commandParameters.ledBrightness, commandParameters.ledBrightness, commandParameters.ledBrightness);
+                        break;
+
+                    case Command.LEDOFF:
+                        finchRobot.setLED(0, 0, 0);
+                        break;
+
+                    case Command.GETTEMPERATURE:
+                        temperatureSensorValue = finchRobot.getTemperature();
+                        Console.WriteLine($"\t\tCurrent Temperature:{temperatureSensorValue}°C");
+                        break;
+
+                    case Command.GETLEFTLIGHTSENSOR:
+                        leftLightLevel = finchRobot.getLeftLightSensor();
+                        Console.WriteLine($"\t\tCurrent Left Light Sensor:{leftLightLevel}");
+                        break;
+
+                    case Command.GETRIGHTLIGHTSENSOR:
+                        rightLightLevel = finchRobot.getRightLightSensor();
+                        Console.WriteLine($"\t\tCurrent Right Light Sensor:{rightLightLevel}");
+                        break;
+
+                    case Command.GETALLSENSORVALUES:
+                        temperatureSensorValue = finchRobot.getTemperature();
+                        Console.WriteLine($"\t\tCurrent Temperature:{temperatureSensorValue}°C");
+
+                        leftLightLevel = finchRobot.getLeftLightSensor();
+                        Console.WriteLine($"\t\tCurrent Left Light Sensor:{leftLightLevel}");
+
+                        rightLightLevel = finchRobot.getRightLightSensor();
+                        Console.WriteLine($"\t\tCurrent Right Light Sensor:{rightLightLevel}");
+                        break;
+
+                    case Command.DANCE:
+                        finchRobot.setMotors(commandParameters.motorSpeed, -1 * commandParameters.motorSpeed);
+                        UserProgrammingDisplayFlashLightsAndSound(commandParameters, finchRobot);
+                        finchRobot.setMotors(-1 * commandParameters.motorSpeed, commandParameters.motorSpeed);
+                        UserProgrammingDisplayFlashLightsAndSound(commandParameters, finchRobot);
+                        finchRobot.setMotors(0, 0);
+                        finchRobot.setLED(0, 0, 0);
+                        break;
+
+                    case Command.DONE:
+
+                        break;
+
+                    default:
+                        Console.WriteLine();
+                        Console.WriteLine("\tUnkown Command Error");
+                        Console.WriteLine();
+                        break;
+                }
+
+                Console.WriteLine($"\tCommand: {command}");
+            }
+            finchRobot.setLED(0, 0, 0);
+            finchRobot.setMotors(0, 0);
+
+            DisplayMenuPrompt("User Programming");
         }
 
+        /// <summary>
+        /// Display commands for previous user program
+        /// </summary>
         static void UserProgrammingDisplayViewPreviousProgramCommands()
         {
             string previousProgram = @"UserProgrammingPreviousProgram\UserProgrammingPreviousProgram.txt";
+            string[] previousProgramStringArray = File.ReadAllLines(previousProgram);
 
-            DisplayScreenHeader("View Commands");
+            DisplayScreenHeader("View Previous Program Commands");
 
             Console.WriteLine("\tCommand List");
             Console.WriteLine("\t------------");
 
-            File.Read(previousProgram);
+            foreach (string command in previousProgramStringArray)
+            {
+                Console.WriteLine($"\t{command}");
+            }
 
             DisplayMenuPrompt("User Programming");
         }
@@ -388,7 +523,7 @@ namespace Project_FinchControl
         }
 
         /// <summary>
-        /// 
+        /// Get commands from user
         /// </summary>
         /// <returns></returns>
         static List<Command> UserProgrammingDisplayGetFinchCommands()
