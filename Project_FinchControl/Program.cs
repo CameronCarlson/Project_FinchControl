@@ -163,7 +163,7 @@ namespace Project_FinchControl
                 Console.WriteLine("\tc) View Commands");
                 Console.WriteLine("\td) Execute Commands");
                 Console.WriteLine("\te) View Previous Program Commands");
-                Console.WriteLine("\tf) Execute Previous Program Commands");
+                Console.WriteLine("\tf) Execute Previous Program Commands [Must Enter New Command Parameters]");
                 Console.WriteLine("\tg) Main Menu");
                 Console.Write("\t\tEnter Choice:");
                 menuChoice = Console.ReadLine().ToLower();
@@ -227,17 +227,17 @@ namespace Project_FinchControl
             string previousProgram = @"UserProgrammingPreviousProgram\UserProgrammingPreviousProgram.txt";
             string[] previousProgramStringArray = File.ReadAllLines(previousProgram);
             Command[] previousProgramEnumArray = new Command[previousProgramStringArray.Length];
-            List<Command> commands = null;
-            Command enumCommand;
+            List<Command> commands = new List<Command>();
+            Command command;
 
             Console.WriteLine("\tThe Finch Robot will now execute all commands.");
             DisplayContinuePrompt();
 
             foreach (string stringCommand in previousProgramStringArray)
             {
-                if (Enum.TryParse(stringCommand, out enumCommand))
+                if (Enum.TryParse(stringCommand, out command))
                 {
-                    commands.Add(enumCommand);
+                    commands.Add(command);
                 }
                 else
                 {
@@ -245,9 +245,9 @@ namespace Project_FinchControl
                 }
             }
 
-            foreach (Command command in commands)
+            foreach (Command programCommand in commands)
             {
-                switch (command)
+                switch (programCommand)
                 {
                     //case Command.NONE:
                     //    Console.WriteLine();
@@ -334,7 +334,7 @@ namespace Project_FinchControl
                         break;
                 }
 
-                Console.WriteLine($"\tCommand: {command}");
+                Console.WriteLine($"\tCommand: {programCommand}");
             }
             finchRobot.setLED(0, 0, 0);
             finchRobot.setMotors(0, 0);
